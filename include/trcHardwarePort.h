@@ -171,7 +171,24 @@ uint32_t uiTraceTimerGetValue(void);
 	* #define TRC_CFG_ARM_CM_USE_SYSTICK
     **************************************************************************/
 
-	#if ((__CORTEX_M >= 0x03) && (! defined TRC_CFG_ARM_CM_USE_SYSTICK))
+	#ifdef TRC_CFG_ARM_CM_RTL872xD
+		#include "hal_platform.h"
+		#include "rtl8721d_tim.h"
+
+		void xTraceHardwarePortInitRtl872x1d(void);
+
+		#define TRC_TIMER TIM0
+
+		#define TRC_HWTC_TYPE TRC_FREE_RUNNING_32BIT_INCR
+		#define TRC_HWTC_COUNT RTIM_GetCount(TRC_TIMER)
+		#define TRC_HWTC_PERIOD 0
+		#define TRC_HWTC_DIVISOR 1
+		#define TRC_HWTC_FREQ_HZ 32768
+		#define TRC_IRQ_PRIORITY_ORDER 0 // Lower IRQ priority values are more significant
+
+		#define TRC_PORT_SPECIFIC_INIT() xTraceHardwarePortInitRtl872x1d()
+
+	#elif ((__CORTEX_M >= 0x03) && (! defined TRC_CFG_ARM_CM_USE_SYSTICK))
 		
 		void xTraceHardwarePortInitCortexM(void);
 

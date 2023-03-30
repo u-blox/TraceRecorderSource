@@ -15,7 +15,26 @@
 /* If using DWT timestamping (default on ARM Cortex-M3, M4 and M7), make sure the DWT unit is initialized. */
 #if (((TRC_CFG_HARDWARE_PORT == TRC_HARDWARE_PORT_ARM_Cortex_M) || (TRC_CFG_HARDWARE_PORT == TRC_HARDWARE_PORT_ARM_Cortex_M_NRF_SD)) && (defined (__CORTEX_M) && (__CORTEX_M >= 0x03)))
 #if (TRC_CFG_RECORDER_MODE == TRC_RECORDER_MODE_STREAMING)
-#ifndef TRC_CFG_ARM_CM_USE_SYSTICK
+
+#ifdef TRC_CFG_ARM_CM_RTL872xD
+
+#include "ameba_soc.h"
+
+void xTraceHardwarePortInitRtl872x1d(void)
+{
+	RTIM_TimeBaseInitTypeDef TIM_InitStruct;
+
+	//RCC_PeriphClockCmd(APBPeriph_GTIMER, APBPeriph_GTIMER_CLOCK, ENABLE);
+	RTIM_TimeBaseStructInit(&TIM_InitStruct);
+	TIM_InitStruct.TIM_Idx = 3;
+	TIM_InitStruct.TIM_Prescaler = 0;
+	TIM_InitStruct.TIM_Period = 0xFFFFFFFF;
+	RTIM_TimeBaseInit(TRC_TIMER, &TIM_InitStruct, TIMER3_IRQ, NULL, 0);
+	RTIM_INTConfig(TRC_TIMER, TIM_IT_Update, DISABLE);
+	RTIM_Cmd(TRC_TIMER, ENABLE);
+}
+
+#elif !defined(TRC_CFG_ARM_CM_USE_SYSTICK)
 
 void xTraceHardwarePortInitCortexM(void)
 {
